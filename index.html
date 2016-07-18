@@ -60,7 +60,7 @@
                     </tr>
                 </table>
 
-            <p><input type="checkbox" name="UTC" accesskey="g" onchange="populateDates();"> <u>G</u>MT (if unchecked, it uses your local time without attempting the offset.)
+            <p><input type="checkbox" name="UTC" accesskey="g" > <u>G</u>MT (if unchecked, it uses your local time without attempting the offset.)
                 <br><br><b>Option <u>2</u>: Enter a qb50 epoch time value</b>
 
                 <table>
@@ -104,11 +104,11 @@
                     var x = parseInt((Date.UTC(dDate.getUTCFullYear(), dDate.getUTCMonth(),
                         dDate.getUTCDate(), dDate.getUTCHours(), dDate.getUTCMinutes(),
                         dDate.getUTCSeconds(), dDate.getUTCMilliseconds()
-                    ) / 1000) - 946684800);
+                    ) / 1000) - 946684800 - (dDate.getTimezoneOffset() * 60));
                     return x;
                 } else {
-                    var x = (((dDate.getTime() - dDate.getMilliseconds()) / 1000)- 946684800);
-                    //    x += dDate.getTimezoneOffset();
+                    var x = (Math.floor((dDate.getTime()) / 1000)- 946684800);
+                        //x += (dDate.getTimezoneOffset() * 60);
                     return x;
                 }
             }
