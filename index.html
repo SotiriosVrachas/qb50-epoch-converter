@@ -55,13 +55,13 @@
                         <td width="100%" colspan="5">
                             <button accesskey="c" style="width:90px;"
                                 onclick="toQB50Epoch(this.form.month,this.form.day,this.form.year,this.form.hour,this.form.minute,this.form.second)"
-                                >To Epo<u>c</u>h</button>
+                                >To QB50 Epo<u>c</u>h</button>
                         </td>
                     </tr>
                 </table>
 
-            <p><input type="checkbox" name="GMT" accesskey="g" onchange="populateDates();"> <u>G</u>MT (if unchecked, it uses your local time without attempting the offset.)
-                <br><br><b>Option <u>2</u>: Enter an qb50epoch time value</b>
+            <p><input type="checkbox" name="UTC" accesskey="g" onchange="populateDates();"> <u>U</u>TC (if unchecked, it uses your local time without attempting the offset.)
+                <br><br><b>Option <u>2</u>: Enter a qb50 epoch time value</b>
 
                 <table>
                     <tr>
@@ -75,7 +75,7 @@
                     </tr>
                 </table>
 
-            <p><input type="checkbox" name="GMT2"> <u>G</u>MT (if unchecked, it uses your local timezone without for the output.)
+            <p><input type="checkbox" name="UTC2"> UTC (if unchecked, it uses your local timezone without for the output.)
             <br><br><b>Conversion Output:</b>
             <div id="dynamo" class="code">
                 (the conversion will appear here)
@@ -86,7 +86,7 @@
                       Date/QB50Epoch Functions
                       Author: Thomas Ballard (http://thomas.ballard.ws)
             
-                      Note: slightly polluted to attempt to support a GMT/non-GMT (local) timezone offset feature. 
+                      Note: slightly polluted to attempt to support a UTC/non-UTC (local) timezone offset feature. 
                       Hack and slash resulted in a form input having a toggle state... but these functions need 
                       to know that form and input to access the property for evaluation. Need to come back 
                       and make these methods more agnostic.
@@ -95,8 +95,8 @@
             
             
             window.getQB50Epoch = function() {
-                var GMT = document.ivnForm.GMT.checked
-                if (GMT) {
+                var UTC = document.ivnForm.UTC.checked
+                if (UTC) {
                     var x = parseInt((Date.UTC(dDate.getUTCFullYear(), dDate.getUTCMonth(),
                         dDate.getUTCDate(), dDate.getUTCHours(), dDate.getUTCMinutes(),
                         dDate.getUTCSeconds(), dDate.getUTCMilliseconds()
@@ -142,8 +142,8 @@
                 var mQB50Epoch = parseInt(eObj.value)+946684800;
                 if (mQB50Epoch < 10000000000) mQB50Epoch *= 1000; // convert to milliseconds (QB50Epoch is usually expressed in seconds, but Javascript uses Milliseconds)
 
-                var GMT2 = document.ivnForm.GMT2.checked
-                if (GMT2) {
+                var UTC2 = document.ivnForm.UTC2.checked
+                if (UTC2) {
                     var UTCDate = new Date(mQB50Epoch)
                     return UTCDate.toUTCString()
                 } else {
@@ -178,8 +178,8 @@
         <script type="text/javascript">
             function populateDates() {
                 var fobj = document.forms.ivnForm
-                if (fobj.GMT.checked) {
-                    // GMT TIME
+                if (fobj.UTC.checked) {
+                    // UTC TIME
                     window.dDate = new Date(Date.UTC(dDate.getUTCFullYear(), dDate.getUTCMonth(),
                         dDate.getUTCDate(), dDate.getUTCHours(), dDate.getUTCMinutes(),
                         dDate.getUTCSeconds(), dDate.getUTCMilliseconds()));
@@ -204,8 +204,8 @@
                     fobj.second.selectedIndex = dDate.getSeconds();
                 }
             
-                var GMT = document.ivnForm.GMT.checked
-                if (GMT) {
+                var UTC = document.ivnForm.UTC.checked
+                if (UTC) {
                     var html = parseInt(Date.UTC(dDate.getUTCFullYear(), dDate.getUTCMonth(),
                                 dDate.getUTCDate(), dDate.getUTCHours(), dDate.getUTCMinutes(),
                                 dDate.getUTCSeconds(), dDate.getUTCMilliseconds()) /
@@ -230,4 +230,3 @@
         </script>
     </body>
 </html>
-
