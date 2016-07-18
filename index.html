@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>QB50 Epoch Converter</title>
+    </head>
+    <body>
+        <form name="ivnForm" onsubmit="return false" style="margin:0;">
+            <br><br><b>Option <u>1</u>: Enter a human readable date</b>
+
+                <table>
+                    <tr>
+                        <td class="content" nowrap>New Date:</td>
+                        <td >
+                            <select name="month" accesskey="1"
+                                onchange="if(window.getDays) window.getDays(this,this.form.day,this.form.year)" 
+                                >
+                                <option value="0">January</option>
+                                <option value="1">February</option>
+                                <option value="2">March</option>
+                                <option value="3">April</option>
+                                <option value="4">May</option>
+                                <option value="5">June</option>
+                                <option value="6">July</option>
+                                <option value="7">August</option>
+                                <option value="8">September</option>
+                                <option value="9">October</option>
+                                <option value="10">November</option>
+                                <option value="11">December</option>
+                            </select>
+                        </td>
+                        <td >
+                            <select name="day" nchange="getDays(this.form.month,this.form.day,this.form.year)"></select>
+                        </td>
+                        <td>
+                            <input type="text" name="year" maxlength="4" 
+                                onchange="getDays(this.form.month,this.form.day,this.form.year)"
+                                value="" style="width:50px;"
+                                >
+                        </td>
+                        <td nowrap>
+                            &nbsp;&nbsp;
+                            <script type="text/javascript">
+                                var html = '<select name="hour">'
+                                for(var i=0; i<=24; i++){ html+='<option value="'+i+'">'+i }
+                                html += '</select>:<select name="minute">'
+                                for(var i=0; i<=59; i++){ html+='<option value="'+i+'">'+i }
+                                html += '</select>:<select name="second">'
+                                for(var i=0; i<=59; i++){ html+='<option value="'+i+'">'+i }
+                                document.write(html)
+                            </script>
+                        </td>
+                        <td width="100%" colspan="5">
+                            <button accesskey="c" style="width:90px;"
+                                onclick="toQB50Epoch(this.form.month,this.form.day,this.form.year,this.form.hour,this.form.minute,this.form.second)"
+                                >To Epo<u>c</u>h</button>
+                        </td>
+                    </tr>
+                </table>
+
+            <p><input type="checkbox" name="GMT" accesskey="g" onchange="populateDates();"> <u>G</u>MT (if unchecked, it uses your local time without attempting the offset.)
+                <br><br><b>Option <u>2</u>: Enter an qb50epoch time value</b>
+
+                <table>
+                    <tr>
+                        <td class="content" nowrap>New QB50Epoch Time Value:</td>
+                        <td width="100%"><input name="qb50epoch" accesskey="2" value="[|| form.qb50epoch]">
+                            <button style="width:90px;"
+                                onclick="document.getElementById('dynamo').innerHTML = toDate(this.form.qb50epoch)"
+                                accesskey="o"
+                                >T<u>o</u> Date</button>
+                        </td>
+                    </tr>
+                </table>
+
+            <p><input type="checkbox" name="GMT2"> <u>G</u>MT (if unchecked, it uses your local timezone without for the output.)
+            <br><br><b>Conversion Output:</b>
+            <div id="dynamo" class="code">
+                (the conversion will appear here)
+            </div>
+        </form>
+        <script type="text/javascript">
+            /*
+                      Date/QB50Epoch Functions
+                      Author: Thomas Ballard (http://thomas.ballard.ws)
+            
+                      Note: slightly polluted to attempt to support a GMT/non-GMT (local) timezone offset feature. 
+                      Hack and slash resulted in a form input having a toggle state... but these functions need 
+                      to know that form and input to access the property for evaluation. Need to come back 
+                      and make these methods more agnostic.
+                    */
+            if (!window.dDate) window.dDate = new Date()
+            
+            
+            window.getQB50Epoch = function() {
+                var GMT = document.ivnForm.GMT.checked
+                if (GMT) {
+                    var x = parseInt((Date.UTC(dDate.getUTCFullYear(), dDate.getUTCMonth(),
+                        dDate.getUTCDate(), dDate.getUTCHours(), dDate.getUTCMinutes(),
+                        dDate.getUTCSeconds(), dDate.getUTCMilliseconds()
+                    ) / 1000) - 946684800);
+                    return x;
+                } else {
+                    var x = (((dDate.getTime() - dDate.getMilliseconds()) / 1000)- 946684800);
+                    //    x += dDate.getTimezoneOffset();
+                    return x;
+                }
+            }
+            
+            
+            
+            window.getDays = function(mObj, dObj, yObj) {
+                // build array of days in a select container based on selected month and year
+                iMonth = parseInt(mObj.options[mObj.selectedIndex].value) + 1
+                iYear = (yObj.value ? yObj.value : 1900);
+            
+                var iDays = 31;
+                switch (iMonth) { /* determine the number of days this month including leap years */
+                    case 4:
+                    case 6:
+                    case 9:
+                    case 11:
+                        --iDays;
+                        break;
+                    case 2:
+                        iDays = 29;
+                        if (!((iYear % 4 == 0) && (iYear % 100 != 0)) || (iYear %
+                                400 == 0)) --iDays;
+                }
+            
+                dObj.options.length = 0;
+                for (var i = 0; i < iDays; i++) {
+                    dObj.options[i] = new Option(i + 1, i + 1)
+                }
+            }
+            
+            
+            window.toDate = function(eObj) {
+                //var mQB50Epoch = parseInt(eObj.value);
+                var mQB50Epoch = parseInt(eObj.value)+946684800;
+                if (mQB50Epoch < 10000000000) mQB50Epoch *= 1000; // convert to milliseconds (QB50Epoch is usually expressed in seconds, but Javascript uses Milliseconds)
+
+                var GMT2 = document.ivnForm.GMT2.checked
+                if (GMT2) {
+                    var UTCDate = new Date(mQB50Epoch)
+                    return UTCDate.toUTCString()
+                } else {
+                    dDate.setTime(mQB50Epoch)
+                    return dDate;
+                }
+
+            }
+            
+            
+            window.toQB50Epoch = function(mObj, dObj, yObj, hrObj, minObj, secObj) {
+                var month = mObj.options[mObj.selectedIndex].value
+                var day = dObj.options[dObj.selectedIndex].value
+                var year = yObj.value
+                var hour = hrObj.options[hrObj.selectedIndex].value
+                var minute = minObj.options[minObj.selectedIndex].value
+                var second = secObj.options[secObj.selectedIndex].value
+            
+                //alert(month+']['+day+']['+year)
+                dDate.setMonth(month, day)
+                dDate.setFullYear(year)
+                dDate.setHours(hour, minute, second)
+                    //alert(dDate)
+            
+                var zObj = document.getElementById('dynamo')
+                zObj.innerHTML = window.getQB50Epoch()
+                if (window && window.clipboardData && window.clipboardData.setData)
+                    bResult = window.clipboardData.setData("Text", zObj.innerHTML); //stuff the text onto the clipboard
+            
+            }
+        </script>
+        <script type="text/javascript">
+            function populateDates() {
+                var fobj = document.forms.ivnForm
+                if (fobj.GMT.checked) {
+                    // GMT TIME
+                    window.dDate = new Date(Date.UTC(dDate.getUTCFullYear(), dDate.getUTCMonth(),
+                        dDate.getUTCDate(), dDate.getUTCHours(), dDate.getUTCMinutes(),
+                        dDate.getUTCSeconds(), dDate.getUTCMilliseconds()));
+                    fobj.month.selectedIndex = dDate.getUTCMonth(); // set initial month to current
+                    fobj.year.value = dDate.getUTCFullYear()
+                    getDays(fobj.month, fobj.day, fobj.year)
+                    fobj.day.selectedIndex = dDate.getUTCDate() - 1
+                    fobj.qb50epoch.value = window.getQB50Epoch()
+                    fobj.hour.selectedIndex = dDate.getUTCHours();
+                    fobj.minute.selectedIndex = dDate.getUTCMinutes();
+                    fobj.second.selectedIndex = dDate.getUTCSeconds();
+                } else {
+                    // LOCAL TIME
+                    window.dDate = new Date();
+                    fobj.month.selectedIndex = dDate.getMonth(); // set initial month to current
+                    fobj.year.value = dDate.getFullYear()
+                    getDays(fobj.month, fobj.day, fobj.year)
+                    fobj.day.selectedIndex = dDate.getDate() - 1
+                    fobj.qb50epoch.value = window.getQB50Epoch()
+                    fobj.hour.selectedIndex = dDate.getHours();
+                    fobj.minute.selectedIndex = dDate.getMinutes();
+                    fobj.second.selectedIndex = dDate.getSeconds();
+                }
+            
+                var GMT = document.ivnForm.GMT.checked
+                if (GMT) {
+                    var html = parseInt(Date.UTC(dDate.getUTCFullYear(), dDate.getUTCMonth(),
+                                dDate.getUTCDate(), dDate.getUTCHours(), dDate.getUTCMinutes(),
+                                dDate.getUTCSeconds(), dDate.getUTCMilliseconds()) /
+                            1000) + ' (QB50Epoch)' +
+                        '<br>' + dDate.toUTCString() + ' (Standard)'
+                } else {
+                    var html = (dDate.getTime() - dDate.getMilliseconds()) / 1000 +
+                        ' (QB50Epoch)' +
+                        '<br>' + dDate + ' (Standard)'
+                }
+                if (document && document.getElementById) {
+                    obj = document.getElementById('jdate1')
+                    if (obj) obj.innerHTML = html
+                }
+            }
+            populateDates();
+        </script>
+        <script type="text/perlscript">
+            $obj = $window->document->getElementById('pdate1'); $obj->{innerHTML} = time . "
+            (QB50Epoch)
+            <br>" . localtime(time) . " (Standard)";
+        </script>
+    </body>
+</html>
+
