@@ -60,7 +60,7 @@
                     </tr>
                 </table>
 
-            <p><input type="checkbox" name="UTC" accesskey="g" onchange="populateDates();"> <u>U</u>TC (if unchecked, it uses your local time without attempting the offset.)
+            <p><input type="checkbox" name="UTC" accesskey="g" onchange="populateDates();"> <u>G</u>MT (if unchecked, it uses your local time without attempting the offset.)
                 <br><br><b>Option <u>2</u>: Enter a qb50 epoch time value</b>
 
                 <table>
@@ -75,7 +75,7 @@
                     </tr>
                 </table>
 
-            <p><input type="checkbox" name="UTC2"> UTC (if unchecked, it uses your local timezone without for the output.)
+            <p><input type="checkbox" name="UTC2"> GMT (if unchecked, it uses your local timezone without for the output.)
             <br><br><b>Conversion Output:</b>
             <div id="dynamo" class="code">
                 (the conversion will appear here)
@@ -86,7 +86,7 @@
                       Date/Epoch Functions
                       Author: Thomas Ballard (http://thomas.ballard.ws)
             
-                      Note: slightly polluted to attempt to support a UTC/non-UTC (local) timezone offset feature. 
+                      Note: slightly polluted to attempt to support a GMT/non-GMT (local) timezone offset feature. 
                       Hack and slash resulted in a form input having a toggle state... but these functions need 
                       to know that form and input to access the property for evaluation. Need to come back 
                       and make these methods more agnostic.
